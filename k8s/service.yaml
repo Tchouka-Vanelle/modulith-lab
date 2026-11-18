@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: modulith
+  namespace: shop
+spec:
+  selector:
+    app: modulith # Seuls les pods portant ce label sont des destinations du service.
+  ports:
+    - name: http
+      port: 80 # Port stable utilisé par les clients dans le cluster.
+      targetPort: 8080 # Port HTTP réel du conteneur Spring Boot.

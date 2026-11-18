@@ -1,0 +1,11 @@
+# Cluster de formation demandé par le TP : un control plane et deux workers.
+kind: Cluster
+apiVersion: kind.x-k8s.io/v1alpha4
+nodes:
+  # Version épinglée : compatible avec le pilote Docker ZFS de cette machine.
+  - role: control-plane
+    image: kindest/node:v1.34.0
+  - role: worker
+    image: kindest/node:v1.34.0
+  - role: worker
+    image: kindest/node:v1.34.0

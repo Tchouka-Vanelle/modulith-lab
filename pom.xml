@@ -43,6 +43,11 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-webmvc</artifactId>
 		</dependency>
+		<!-- Actuator expose les endpoints de santé consultés par les probes Kubernetes. -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-actuator</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>org.springframework.modulith</groupId>
 			<artifactId>spring-modulith-starter-core</artifactId>
@@ -61,6 +66,12 @@
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<!-- Disponible en cluster, activé par l'URL datasource fournie dans Kubernetes. -->
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
@@ -104,6 +115,9 @@
 				<configuration>
 					<image>
 						<name>demo-modulith-sb4:0.0.1</name>
+						<env>
+							<BP_JVM_VERSION>21</BP_JVM_VERSION>
+						</env>
 					</image>
 				</configuration>
 			</plugin>

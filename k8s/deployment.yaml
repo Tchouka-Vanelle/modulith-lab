@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: modulith
+  namespace: shop
+  labels:
+    app: modulith
+spec:
+  replicas: 3 # État final du TP ; chaque pod reçoit sa configuration Postgres partagée.
+  selector:
+    matchLabels:
+      app: modulith # Doit correspondre aux labels du template de pod.
+  template:
+    metadata:
+      labels:
+        app: modulith
+    spec:
+      containers:
+        - name: modulith
+          image: demo-modulith-sb4:0.0.1
+          imagePullPolicy: IfNotPresent # Utilise l'image chargée par kind, sans pull distant.
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: k8s
+            - name: SPRING_DATASOURCE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: db-config
+                  key: SPRING_DATASOURCE_URL
+            - name: SPRING_DATASOURCE_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: POSTGRES_USER
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-credentials
+                  key: POSTGRES_PASSWORD
+          # La requête réserve un minimum ; la limite borne la mémoire du pod et aide
+          # les buildpacks à calculer une heap Java adaptée au conteneur.
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              memory: "768Mi"
+          # startup protège le démarrage lent de Java ; les deux autres sondes
+          # ne commencent qu'après sa réussite.
+          startupProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: http
+            timeoutSeconds: 3 # Laisse le temps à l'application de répondre sous charge.
+            failureThreshold: 30
+            periodSeconds: 5
+          # Une panne interne redémarre le conteneur. Ne pas tester Postgres ici.
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: http
+            timeoutSeconds: 3
+            periodSeconds: 10
+          # Un pod non prêt est retiré des destinations du Service.
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: http
+            timeoutSeconds: 3
+            periodSeconds: 5

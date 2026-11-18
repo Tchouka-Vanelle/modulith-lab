@@ -1,4 +1,4 @@
 package org.formation.demomodulithsb4.catalog;
 
-public record CoffeeCreatedEvent(String coffeeName) {
-}
+/** Événement public du module catalog, consommé par le module inventory. */
+public record CoffeeCreatedEvent(Long coffeeId, String coffeeName) { }

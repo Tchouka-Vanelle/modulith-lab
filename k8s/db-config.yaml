@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: db-config
+  namespace: shop
+data:
+  POSTGRES_DB: shop
+  # Le nom postgres est celui du Service PostgreSQL défini dans postgres.yaml.
+  SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/shop

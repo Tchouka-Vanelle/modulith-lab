@@ -1,0 +1,51 @@
+# Variante du TP 2.3/2.4 : la base H2 reste en mémoire dans chaque pod.
+# Utiliser ce Deployment jusqu'à la démonstration des données incohérentes.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: modulith
+  namespace: shop
+  labels:
+    app: modulith
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: modulith
+  template:
+    metadata:
+      labels:
+        app: modulith
+    spec:
+      containers:
+        - name: modulith
+          image: demo-modulith-sb4:0.0.1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              memory: "768Mi"
+          startupProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: http
+            timeoutSeconds: 3
+            failureThreshold: 30
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: http
+            timeoutSeconds: 3
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: http
+            timeoutSeconds: 3
+            periodSeconds: 5
